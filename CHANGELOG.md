@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.1] — 2026-06-19
+
+### Documentation
+- Confirmed and documented PWA installability on **macOS** (Safari 17+/Sonoma or later, and Chrome/Edge) and **Linux** (any Chromium-based browser), in addition to the previously documented Android, iOS, and Windows support.
+- Added a note on Firefox's lack of native desktop install support and a pointer to the third-party PWAsForFirefox extension as a workaround.
+
 ## [1.0.0] — 2026-06-19
 
 Initial public release. Summary of everything built in this app's development:

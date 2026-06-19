@@ -14,7 +14,7 @@ No build step, no backend, no external dependencies. It's a single HTML file plu
 - **Quit anytime** — end a session early and still get a fully scored results screen based on whatever you've answered so far.
 - **Instant per-question feedback** with an expert rationale broken into readable bullet points (not a wall of text).
 - **Domain-level results breakdown** with performance status (Above/On/Below Target) and targeted study recommendations for weak areas.
-- **Installable as a real app** on Android, iOS, and Windows via the Web App Manifest + Service Worker (see below).
+- **Installable as a real app** on Android, iOS, Windows, macOS, and Linux via the Web App Manifest + Service Worker (see below).
 - **Works fully offline** once loaded — the service worker caches the entire app, including all 510 questions, so no internet connection is needed after the first visit.
 
 ## Install as an App
@@ -26,8 +26,13 @@ This is a Progressive Web App (PWA). Once it's hosted somewhere with HTTPS (see 
 | **Android** (Chrome) | Open the site → tap the **⋮** menu → **Install app** |
 | **iOS** (Safari) | Open the site → tap the **Share** icon → **Add to Home Screen** |
 | **Windows** (Edge/Chrome) | Open the site → click the **install icon (⊕)** in the address bar, or menu → **Apps** → **Install this site as an app** |
+| **macOS** (Safari 17+, macOS Sonoma or later) | Open the site → **File** menu → **Add to Dock…** |
+| **macOS** (Chrome/Edge) | Open the site → click the **install icon (⊕)** in the address bar, or menu → **Install [App Name]…** |
+| **Linux** (Chrome/Edge/Brave/Chromium) | Open the site → click the **install icon (⊕)** in the address bar, or menu → **Install [App Name]…** |
 
-Once installed, it opens in its own window with no browser chrome, shows up in your app list/home screen with its own icon, and works offline.
+Once installed, it opens in its own window with no browser chrome, shows up in your app list/home screen/Dock with its own icon, and works offline.
+
+> **Firefox users:** desktop Firefox doesn't natively support installing web apps (Windows, macOS, or Linux). If you're on Firefox, either switch to a Chromium-based browser to install it, or use Firefox's third-party [PWAsForFirefox](https://pwasforfirefox.filips.si/) extension. You can still use the app normally in Firefox as a regular webpage either way — it just won't install as a standalone app window.
 
 > Note: installability and offline support require HTTPS. Opening `index.html` directly from a downloaded folder (`file://`) still works as a normal webpage, but browsers block service worker registration and install prompts on that protocol for security reasons.
 
