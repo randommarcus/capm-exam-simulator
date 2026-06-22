@@ -1292,6 +1292,7 @@ function showResults(isPartial,reason){
 ════════════════════════════════════════════ */
 function retake(){
   stopTimer();
+  $id('quiz-screen').classList.add('hidden');
   $id('results-screen').classList.add('hidden');
   $id('start-screen').classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});

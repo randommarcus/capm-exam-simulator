@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here.
 
+## [1.1.1] — 2026-06-22
+
+### Fixed
+- **Quit-on-first-question layout bug** — quitting the exam before answering any question returned to the start screen but left the quiz screen visible underneath it, causing both screens to stack. `retake()` now explicitly hides the quiz screen before showing the start screen.
+
 ## [1.1.0] — 2026-06-22
 
 Community-driven improvements based on feedback from r/capm.
