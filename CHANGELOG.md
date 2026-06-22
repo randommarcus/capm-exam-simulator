@@ -2,6 +2,31 @@
 
 All notable changes to this project are documented here.
 
+## [1.2.0] — 2026-06-22
+
+### Added
+- **Topic gap analysis and fill** — ran a comprehensive topic-coverage audit across all four ECO domains, mapping every existing question against a ~200-topic CAPM checklist. D1 was fully covered (0 gaps). 14 new questions were written for the 14 uncovered topics found across D2, D3, and D4, bringing the bank from 510 to **524 questions**.
+
+  **Domain 2 — 6 new questions:**
+  - Pareto chart (80/20 rule, vital few defect categories)
+  - Cause-and-Effect / Ishikawa / Fishbone diagram
+  - Configuration Management System (version control of project documents)
+  - Risk Breakdown Structure (RBS)
+  - Stakeholder Engagement Plan
+  - Issue Log in execution (issue vs. risk distinction)
+
+  **Domain 3 — 4 new questions:**
+  - Story Mapping (Jeff Patton's two-dimensional user journey technique)
+  - Acceptance Test-Driven Development (ATDD)
+  - Behavior-Driven Development (BDD) and Given/When/Then syntax
+  - Mob Programming (whole-team ensemble coding)
+
+  **Domain 4 — 4 new questions:**
+  - Impact Mapping (WHY/WHO/HOW/WHAT causal chain)
+  - Product Roadmap (strategic high-level product direction artifact)
+  - Voice of the Customer (VoC) research process
+  - Data Dictionary (formal data element definitions)
+
 ## [1.1.3] — 2026-06-22
 
 ### Fixed
