@@ -2,6 +2,36 @@
 
 All notable changes to this project are documented here.
 
+## [2.0.0] — 2026-06-22
+
+### Changed — Codebase Refactor
+The monolithic `index.html` (was ~730 KB, 1300+ lines) has been broken into separate, single-responsibility files:
+
+| Before | After | Purpose |
+|---|---|---|
+| `index.html` (all-in-one) | `index.html` | HTML structure only (~160 lines) |
+| *(inline `<style>`)* | `css/style.css` | All styles |
+| *(inline `<script>`)* | `js/questions.js` | Question bank constant (`QB`) with 524 questions |
+| *(inline `<script>`)* | `js/app.js` | All application logic |
+
+**`js/app.js` improvements:**
+- `'use strict'` throughout
+- Organized into 13 numbered sections with clear headers (Configuration, State, Timer, Utilities, Start Screen, Session Generation, Exam Lifecycle, Question Renderer, Answer Selection, Quit Flow, Navigation, Results, Retake)
+- Named constants replace magic numbers: `WARN_SECONDS`, `PASS_PCT`, `ON_TARGET_PCT`, `LETTERS`, `DOMAIN_KEYS`, `DOMAIN_COLORS`
+- `RECOMMENDATIONS` object extracted from `showResults()` into a top-level constant
+- `createSession()` factory function replaces inline object literal in `startExam()`
+- `perfTier()` helper extracted from `showResults()` (used in both the ring and the domain breakdown rows)
+- JSDoc comments on all public-facing and non-trivial functions
+- Consistent 2-space indentation and spacing throughout
+
+**`service-worker.js` improvements:**
+- `CACHE_VERSION` constant makes version bumps a one-line change
+- `CACHE_NAME` now incorporates the version: `capm-sim-v2`
+- Updated `APP_SHELL` array includes `css/style.css`, `js/questions.js`, `js/app.js`
+- Cleaner comments
+
+No behavior changes — all features, logic, and question content are identical.
+
 ## [1.2.0] — 2026-06-22
 
 ### Added
