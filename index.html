@@ -100,8 +100,11 @@ button{font-family:inherit}
 .q-num{font-size:.8rem;font-weight:600;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .q-timer{display:inline-flex;align-items:center;gap:.3rem;background:var(--primary-light);color:var(--primary);padding:.3rem .8rem;border-radius:100px;font-size:.8rem;font-weight:700;flex-shrink:0;white-space:nowrap;font-variant-numeric:tabular-nums}
 .q-timer.warn{background:var(--wrong-bg);color:var(--wrong);animation:pulseWarn 1s ease-in-out infinite}
+.q-timer.paused{background:#F3F4F6;color:#9CA3AF;animation:none}
 @keyframes pulseWarn{0%,100%{opacity:1}50%{opacity:.5}}
 .q-score{display:inline-flex;align-items:center;gap:.3rem;background:var(--primary-light);color:var(--primary);padding:.3rem .8rem;border-radius:100px;font-size:.8rem;font-weight:700;flex-shrink:0;white-space:nowrap}
+.domain-toggle{display:inline-flex;align-items:center;gap:.35rem;background:transparent;color:var(--tx3);border:1.5px solid var(--border);padding:.3rem .7rem;border-radius:100px;font-size:.74rem;font-weight:700;cursor:pointer;flex-shrink:0;white-space:nowrap;transition:color .15s,border-color .15s,background .15s;font-family:inherit}
+.domain-toggle.active{background:var(--primary-light);color:var(--primary);border-color:var(--primary)}
 .quit-btn{display:inline-flex;align-items:center;gap:.3rem;background:transparent;color:var(--tx3);border:1.5px solid var(--border);padding:.3rem .7rem;border-radius:100px;font-size:.76rem;font-weight:700;cursor:pointer;flex-shrink:0;white-space:nowrap;transition:color .15s,border-color .15s,background .15s}
 .quit-btn:hover{color:var(--wrong);border-color:var(--wrong-bdr);background:var(--wrong-bg)}
 .prog-wrap{height:4px;background:#E0E7FF}
@@ -220,6 +223,7 @@ button{font-family:inherit}
   .dr-bar-wrap{flex:0 0 75px}
   .dr-name{font-size:.78rem}
   .quit-btn span{display:none}
+  .domain-toggle span{display:none}
   .q-header-in{gap:.5rem}
   .q-score{display:none}
 }
@@ -279,6 +283,7 @@ button{font-family:inherit}
       <div class="q-center"><div class="q-num" id="q-num">Question 1 of 30</div></div>
       <div class="q-timer" id="timer-disp">⏱ 36:00</div>
       <div class="q-score">⭐ <span id="score-disp">0 / 0</span></div>
+      <button class="domain-toggle active" id="domain-toggle-btn" onclick="toggleDomain()" aria-label="Toggle domain label" title="Show/hide domain">🏷 <span>Domain</span></button>
       <button class="quit-btn" onclick="askQuit()" aria-label="Quit exam">✕ <span>Quit</span></button>
     </div>
   </header>
@@ -960,7 +965,14 @@ function genSession(len){
   const all=[];
   ['d1','d2','d3','d4'].forEach(dk=>{
     const sel=pick(QB[dk],cfg[dk]);
-    sel.forEach(q=>all.push({...q,domain:dk}));
+    sel.forEach(q=>{
+      // Shuffle option order so the correct answer appears at a random
+      // position each time — prevents "longest option = correct" pattern recognition.
+      const opts=[...q.opts];
+      const correctText=opts[q.ans];
+      const shuffledOpts=shuffle(opts);
+      all.push({...q,opts:shuffledOpts,ans:shuffledOpts.indexOf(correctText),domain:dk});
+    });
   });
   return shuffle(all);
 }
@@ -970,6 +982,7 @@ function genSession(len){
 ════════════════════════════════════════════ */
 let timerInterval=null;
 let timeRemaining=0;
+let timerPaused=false;
 function fmtClock(sec){
   sec=Math.max(0,sec);
   const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;
@@ -979,14 +992,17 @@ function fmtClock(sec){
 function updateTimerDisplay(){
   const el=$id('timer-disp');
   if(!el)return;
-  el.textContent=`⏱ ${fmtClock(timeRemaining)}`;
-  el.classList.toggle('warn',timeRemaining<=300&&timeRemaining>0);
+  el.textContent=timerPaused?`⏸ ${fmtClock(timeRemaining)}`:`⏱ ${fmtClock(timeRemaining)}`;
+  el.classList.toggle('warn',!timerPaused&&timeRemaining<=300&&timeRemaining>0);
+  el.classList.toggle('paused',timerPaused);
 }
 function startTimer(minutes){
   stopTimer();
+  timerPaused=false;
   timeRemaining=minutes*60;
   updateTimerDisplay();
   timerInterval=setInterval(()=>{
+    if(timerPaused)return;
     timeRemaining--;
     updateTimerDisplay();
     if(timeRemaining<=0){
@@ -995,8 +1011,17 @@ function startTimer(minutes){
     }
   },1000);
 }
+function pauseTimer(){
+  timerPaused=true;
+  updateTimerDisplay();
+}
+function resumeTimer(){
+  timerPaused=false;
+  updateTimerDisplay();
+}
 function stopTimer(){
   if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+  timerPaused=false;
 }
 function timeUp(){
   $id('quit-modal').classList.add('hidden');
@@ -1004,10 +1029,26 @@ function timeUp(){
 }
 
 /* ════════════════════════════════════════════
+   DOMAIN TOGGLE
+════════════════════════════════════════════ */
+let showDomain=true;
+function toggleDomain(){
+  showDomain=!showDomain;
+  const btn=$id('domain-toggle-btn');
+  btn.classList.toggle('active',showDomain);
+  btn.title=showDomain?'Hide domain label':'Show domain label';
+  $id('d-badge').style.visibility=showDomain?'visible':'hidden';
+}
+
+/* ════════════════════════════════════════════
    START EXAM
 ════════════════════════════════════════════ */
 function startExam(){
   S={qs:genSession(selectedLen),idx:0,score:0,answered:false,ds:{d1:{c:0,t:0},d2:{c:0,t:0},d3:{c:0,t:0},d4:{c:0,t:0}}};
+  // Reset domain toggle to visible on every new exam
+  showDomain=true;
+  const dtBtn=$id('domain-toggle-btn');
+  if(dtBtn){dtBtn.classList.add('active');dtBtn.title='Hide domain label';}
   $id('start-screen').classList.add('hidden');
   $id('quiz-screen').classList.remove('hidden');
   startTimer(EXAM_LENGTHS[selectedLen].minutes);
@@ -1033,6 +1074,7 @@ function render(){
   const badge=$id('d-badge');
   badge.textContent=`${q.domain.replace('d','Domain ')} · ${DOMAINS[q.domain].name}`;
   badge.className=`d-badge ${dColors[q.domain]}`;
+  badge.style.visibility=showDomain?'visible':'hidden';
 
   // Question
   $id('q-text').textContent=q.q;
@@ -1062,6 +1104,9 @@ function render(){
 function pick_ans(sel){
   if(S.answered)return;
   S.answered=true;
+
+  // Pause timer — lets the user read the rationale without time pressure
+  pauseTimer();
 
   const q=S.qs[S.idx];
   const correct=sel===q.ans;
@@ -1139,6 +1184,7 @@ function confirmQuit(){
 function next(){
   if(S.idx===S.qs.length-1){stopTimer();showResults(false);return;}
   S.idx++;
+  resumeTimer();
   render();
   window.scrollTo({top:0,behavior:'smooth'});
 }

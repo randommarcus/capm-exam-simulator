@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented here.
 
+## [1.1.0] — 2026-06-22
+
+Community-driven improvements based on feedback from r/capm.
+
+### Added
+- **Timer pauses on answer** — the countdown freezes the moment you select an answer (timer display shows ⏸ and greys out), giving you unrushed time to read the rationale. The clock resumes automatically when you click Next Question.
+- **Answer option shuffling** — the A/B/C/D order of every question's options is randomised on each session draw. Prevents the "longest option is usually correct" pattern-recognition shortcut that made the bank easier than it should be.
+- **Domain label toggle** — a 🏷 Domain button in the quiz header lets you show or hide the domain badge above each question. Default is on; turn it off to simulate a closer-to-real exam environment where the domain context isn't surfaced. Your preference persists for the whole session.
+
 ## [1.0.1] — 2026-06-19
 
 ### Documentation
