@@ -1,6 +1,6 @@
 # CAPM® Practice Exam Simulator
 
-A free, offline-capable, installable practice exam simulator for the PMI **Certified Associate in Project Management (CAPM)®** certification. PocketPrep-style interface, 510 original practice questions weighted to the official Exam Content Outline (ECO), instant feedback with bulleted rationales, domain-level performance breakdowns, and a configurable timed exam mode.
+A free, offline-capable, installable practice exam simulator for the PMI **Certified Associate in Project Management (CAPM)®** certification. PocketPrep-style interface, 524 original practice questions weighted to the official Exam Content Outline (ECO), instant feedback with bulleted rationales, domain-level performance breakdowns, and a configurable timed exam mode.
 
 No build step, no backend, no external dependencies. It's a single HTML file plus a handful of small PWA assets — open it in a browser and it works.
 
@@ -8,14 +8,17 @@ No build step, no backend, no external dependencies. It's a single HTML file plu
 
 ## Features
 
-- **510-question bank** split across all four CAPM ECO domains, weighted to match PMI's official percentages (Domain 1: 36%, Domain 2: 17%, Domain 3: 20%, Domain 4: 27%).
+- **524-question bank** split across all four CAPM ECO domains, weighted to match PMI's official percentages (Domain 1: 36%, Domain 2: 17%, Domain 3: 20%, Domain 4: 27%).
 - **Five exam lengths** — 30, 60, 90, or 120 questions, or the full 150-question exam — each drawing from the bank in the correct domain proportions.
 - **Adaptive countdown timer**, scaled off PMI's real 3-hour allowance for the 150-question exam (1.2 minutes/question), so a 30-question exam gets 36 minutes, a 90-question exam gets 1h 48m, and so on. Turns red and pulses in the final 5 minutes; auto-submits for scoring if time runs out.
+- **Timer pauses on answer** — the countdown freezes the moment you select an option so you can read the rationale at leisure; it resumes automatically when you click Next Question.
+- **Shuffled answer options** — the A/B/C/D order of every question's options is randomised each session, preventing the "longest option is usually correct" pattern-recognition shortcut.
+- **Domain label toggle** — a toggle in the quiz header lets you show or hide the domain badge above each question, so you can choose how closely to simulate the real exam environment.
 - **Quit anytime** — end a session early and still get a fully scored results screen based on whatever you've answered so far.
 - **Instant per-question feedback** with an expert rationale broken into readable bullet points (not a wall of text).
 - **Domain-level results breakdown** with performance status (Above/On/Below Target) and targeted study recommendations for weak areas.
 - **Installable as a real app** on Android, iOS, Windows, macOS, and Linux via the Web App Manifest + Service Worker (see below).
-- **Works fully offline** once loaded — the service worker caches the entire app, including all 510 questions, so no internet connection is needed after the first visit.
+- **Works fully offline** once loaded — the service worker caches the entire app, including all 524 questions, so no internet connection is needed after the first visit.
 
 ## Install as an App
 
@@ -74,13 +77,18 @@ python3 -m http.server 8000
 
 ```
 .
-├── index.html              # The entire app: HTML, CSS, JS, and all 510 questions
-├── manifest.json            # Web App Manifest (name, icons, display mode)
-├── service-worker.js        # Caches the app shell for offline use
-├── favicon.ico               # Multi-resolution favicon (16/32/48px)
+├── index.html              # HTML structure only (~160 lines) — no inline CSS or JS
+├── css/
+│   └── style.css           # All styles
+├── js/
+│   ├── questions.js        # Question bank — QB constant with all 524 questions
+│   └── app.js              # All application logic (config, timer, quiz, results)
+├── manifest.json           # Web App Manifest (name, icons, display mode)
+├── service-worker.js       # Caches the app shell for offline use
+├── favicon.ico             # Multi-resolution favicon (16/32/48px)
 ├── icons/
-│   ├── icon-192.png          # Standard app icon
-│   ├── icon-512.png          # Standard app icon (large)
+│   ├── icon-192.png        # Standard app icon
+│   ├── icon-512.png        # Standard app icon (large)
 │   ├── icon-maskable-512.png # Android adaptive icon (safe-zone padded)
 │   ├── apple-touch-icon.png  # iOS home screen icon (180×180)
 │   ├── favicon-32.png
@@ -104,13 +112,13 @@ Every exam length pulls questions in the same proportions PMI uses for the real 
 
 ## Tech Stack
 
-Plain HTML, CSS, and JavaScript — no frameworks, no bundler, no `npm install`. The question bank lives as a plain JS object inside `index.html`. The only "build step" that ever touched this project was generating the PWA icon set. This is intentional: anyone should be able to open the file and understand the whole app top to bottom.
+Plain HTML, CSS, and vanilla JavaScript — no frameworks, no bundler, no `npm install`. The codebase is split across three purpose-specific files (`css/style.css`, `js/questions.js`, `js/app.js`) loaded by a thin `index.html` shell. The only "build step" that ever touched this project was generating the PWA icon set. This is intentional: anyone should be able to open any file and understand it top to bottom.
 
 ## How This Project Was Built
 
 In the interest of being upfront about it: this app was built almost entirely by **Claude** (Anthropic's AI assistant), working interactively with the repo owner over a series of conversations.
 
-Claude wrote all of the HTML/CSS/JavaScript, authored the full 510-question bank with explanations (rationales) for each answer, designed and generated the app icon set, and implemented every feature in this README — the exam-length/timer system, quit-and-partial-scoring logic, the bulleted rationale formatting, and the PWA conversion (manifest, service worker, icons).
+Claude wrote all of the HTML/CSS/JavaScript, authored the full 524-question bank with explanations (rationales) for each answer, designed and generated the app icon set, and implemented every feature in this README — the exam-length/timer system, timer-pause-on-answer, answer-option shuffling, domain label toggle, quit-and-partial-scoring logic, the bulleted rationale formatting, the PWA conversion (manifest, service worker, icons), and the codebase refactor that split the monolithic `index.html` into separate `css/`, `js/`, and `index.html` files. Topic-coverage audits and duplicate-detection passes across the full question bank were also Claude's work.
 
 The repo owner directed the entire process: defining what the app should do, specifying the exam logic (domain weighting, timer duration based on the real PMI exam allowance), testing the live app, and catching real UI bugs along the way — including screenshots of a misaligned answer-feedback panel and a study-recommendations section where the layout broke, both of which led directly to the CSS fixes now in this codebase. The decision to build this at all, and every product decision in it, came from the repo owner; Claude was the one typing the code.
 

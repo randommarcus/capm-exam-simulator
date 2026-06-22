@@ -11,7 +11,7 @@ Open an issue with:
 
 ## Adding or Editing Questions
 
-All questions live inline in `index.html`, inside a JavaScript object called `QB`, split into four arrays: `QB.d1`, `QB.d2`, `QB.d3`, `QB.d4` (one per CAPM ECO domain). Each question follows this exact shape:
+All questions live in `js/questions.js`, inside a JavaScript constant called `QB`, split into four arrays: `QB.d1`, `QB.d2`, `QB.d3`, `QB.d4` (one per CAPM ECO domain). Each question follows this exact shape:
 
 ```js
 {
@@ -31,8 +31,15 @@ A few things to keep in mind:
 
 ## Local Development
 
-There's no build step. Edit `index.html` directly and open it in a browser to see changes immediately. If you're testing PWA-specific behavior (install prompt, offline mode), serve the folder locally instead of opening the file directly — see the README's "Running It Locally" section.
+There's no build step. The codebase is split into three purposeful files — edit whichever one you need and refresh the browser:
+
+- **Adding or editing questions** → edit `js/questions.js`
+- **Changing app behaviour or logic** → edit `js/app.js`
+- **Changing styles** → edit `css/style.css`
+- **Changing HTML structure** → edit `index.html`
+
+Open `index.html` directly in a browser to see changes immediately. If you're testing PWA-specific behaviour (install prompt, offline mode), serve the folder locally instead of opening the file directly — see the README's "Running It Locally" section.
 
 ## Code Style
 
-The existing code intentionally avoids frameworks and build tooling. Please keep additions in the same plain HTML/CSS/JS style, and keep the whole app working as a single `index.html` file (plus the small PWA asset files) rather than splitting it into a multi-file build.
+The existing code intentionally avoids frameworks and build tooling. Please keep additions in the same plain HTML/CSS/JS style, following the existing file structure: questions in `js/questions.js`, logic in `js/app.js`, styles in `css/style.css`. Don't introduce a bundler, module system, or framework — the goal is that any file can be opened and understood without any tooling.

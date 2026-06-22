@@ -1,7 +1,7 @@
 {
   "name": "CAPM® Practice Exam Simulator",
   "short_name": "CAPM Sim",
-  "description": "PocketPrep-style practice exam simulator for the PMI CAPM certification — 510+ questions across all four ECO domains, with timed exams, domain breakdowns, and expert rationales.",
+  "description": "PocketPrep-style practice exam simulator for the PMI CAPM certification — 524+ questions across all four ECO domains, with timed exams, domain breakdowns, and expert rationales.",
   "id": "/",
   "start_url": "./index.html",
   "scope": "./",
