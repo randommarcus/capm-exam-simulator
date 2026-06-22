@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented here.
 
+## [1.1.3] — 2026-06-22
+
+### Fixed
+- **Duplicate question audit** — full keyword-overlap scan of all 510 questions identified three genuine duplicates (two near-identical pairs were reviewed and retained as they test distinct skills):
+
+  | Removed | Replaced with |
+  |---|---|
+  | D4: "A BA distinguishes a requirement from a design. Which statement best captures the difference?" (near-identical to an existing question) | **Elicitation vs Analysis** — a scenario question distinguishing the activity of drawing out information from stakeholders (elicitation) from the activity of interpreting and synthesizing it (analysis) |
+  | D4: Functional requirement categorisation scenario using an auto-email report (near-identical wording to an existing question) | **Transition requirements** — a CRM migration scenario identifying the type of requirements that apply only during changeover (data migration, parallel operation, staff retraining) |
+  | D1: "A project manager is comparing a Cost-Reimbursable contract to a Time and Materials contract. Which statement correctly distinguishes these two contract types?" (duplicate of an existing CR vs T&M question) | **Source Selection Criteria** — a procurement scenario on the document that defines evaluation factors and weightings before vendor proposals are received |
+
+  Total question count remains 510.
+
 ## [1.1.2] — 2026-06-22
 
 ### Fixed
