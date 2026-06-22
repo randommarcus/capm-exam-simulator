@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here.
 
+## [1.1.2] — 2026-06-22
+
+### Fixed
+- **Duplicate question removed** — two near-identical questions both asked which Kanban metric measures the duration from when a team starts working on an item until completion (cycle time). The duplicate was replaced with a new question on **Kanban's Make Policies Explicit** practice — one of the six core Kanban practices and a gap in the previous bank coverage. The total question count remains 510.
+
 ## [1.1.1] — 2026-06-22
 
 ### Fixed
