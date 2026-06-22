@@ -2,7 +2,7 @@
 
 A free, offline-capable, installable practice exam simulator for the PMI **Certified Associate in Project Management (CAPM)®** certification. PocketPrep-style interface, 524 original practice questions weighted to the official Exam Content Outline (ECO), instant feedback with bulleted rationales, domain-level performance breakdowns, and a configurable timed exam mode.
 
-No build step, no backend, no external dependencies. It's a single HTML file plus a handful of small PWA assets — open it in a browser and it works.
+No build step, no backend, no external dependencies. Open `index.html` in a browser and it works — or host the folder anywhere with HTTPS to get the installable PWA experience.
 
 ---
 
