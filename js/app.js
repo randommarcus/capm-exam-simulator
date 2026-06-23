@@ -8,6 +8,7 @@
                   cancelQuit()  confirmQuit() retake()
                   toggleDomain()
      Study Mode:  switchMode(m) selectStudyDomain(d) startStudy()
+                  toggleQNav()  jumpTo(i)
 ═══════════════════════════════════════════════════════════════ */
 
 'use strict';
@@ -342,7 +343,9 @@ function startExam() {
   S = createSession(genSession(selectedLen));
   _enterQuiz();
   $id('quiz-screen').classList.remove('is-study');
-  $id('quit-label').textContent   = 'Quit';
+  $id('qnav-toggle').classList.add('hidden');    // navigator only for study mode
+  $id('quiz-nav').classList.add('hidden');        // shown only after answering in exam mode
+  $id('quit-label').textContent       = 'Quit';
   $id('quit-modal-title').textContent = 'Quit this exam?';
   startTimer(EXAM_LENGTHS[selectedLen].minutes);
   render();
@@ -352,7 +355,9 @@ function startExam() {
 function startStudy() {
   S = createStudySession(genStudySession(selectedStudyDomain));
   _enterQuiz();
-  $id('quiz-screen').classList.add('is-study');     // hides timer via CSS
+  $id('quiz-screen').classList.add('is-study');
+  $id('qnav-toggle').classList.remove('hidden'); // show navigator toggle
+  $id('quiz-nav').classList.remove('hidden');     // always visible in study mode
   $id('quit-label').textContent       = 'End';
   $id('quit-modal-title').textContent = 'End this study session?';
   render();
@@ -382,6 +387,15 @@ function render() {
   $id('score-disp').textContent = `${S.score} / ${answeredCount()}`;
   $id('prog-bar').style.width   = `${((num - 1) / tot) * 100}%`;
 
+  // ── Navigator label (study mode only) ─────────────────────────
+  const qnavLabel = $id('qnav-label');
+  if (qnavLabel) qnavLabel.textContent = `${num}/${tot}`;
+
+  // ── Close navigator panel on every render (keeps it fresh) ───
+  $id('qnav-panel').classList.add('hidden');
+  const qnavToggle = $id('qnav-toggle');
+  if (qnavToggle) qnavToggle.classList.remove('open');
+
   // ── Domain badge ─────────────────────────────────────────────
   const badge           = $id('d-badge');
   badge.textContent     = `${q.domain.replace('d', 'Domain ')} · ${DOMAINS[q.domain].name}`;
@@ -403,11 +417,15 @@ function render() {
   $id('feedback-wrap').classList.add('hidden');
   S.answered = false;
 
-  // ── Study mode: prev button visibility ───────────────────────
-  const prevBtn = $id('prev-btn');
+  // ── Study mode: prev button + quiz-nav visibility ─────────────
+  const prevBtn  = $id('prev-btn');
+  const quizNav  = $id('quiz-nav');
   if (S.isStudy) {
+    quizNav.classList.remove('hidden');
     prevBtn.classList.toggle('hidden', S.idx === 0);
+    prevBtn.disabled = S.idx === 0;
   } else {
+    // Exam mode: quiz-nav stays hidden until answering; prev always hidden
     prevBtn.classList.add('hidden');
   }
 
@@ -515,15 +533,84 @@ function pick_ans(sel) {
     ? 'View My Results 🎯'
     : 'Next Question →';
 
-  // Show prev button in study mode once the first answer is in
+  // Exam mode: reveal nav buttons only after first answer
+  if (!S.isStudy) $id('quiz-nav').classList.remove('hidden');
+
+  // Show prev button in study mode once past first question
   if (S.isStudy && S.idx > 0) $id('prev-btn').classList.remove('hidden');
+
+  // If the navigator panel is open, refresh it to show the new answer mark
+  if (!$id('qnav-panel').classList.contains('hidden')) updateQNavGrid();
 
   // Scroll feedback into view on mobile (small delay lets layout settle first)
   setTimeout(() => feedbackWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
 }
 
 /* ─────────────────────────────────────────────────────────────
-   § 10  QUIT FLOW
+   § 10  QUESTION NAVIGATOR  (Study Mode only)
+   ───────────────────────────────────────────────────────────── */
+
+/**
+ * Open or close the question navigator panel.
+ * Refreshes the pill grid on every open so marks are always current.
+ */
+function toggleQNav() {
+  const panel  = $id('qnav-panel');
+  const toggle = $id('qnav-toggle');
+  const isOpen = !panel.classList.contains('hidden');
+  if (isOpen) {
+    panel.classList.add('hidden');
+    toggle.classList.remove('open');
+  } else {
+    updateQNavGrid();
+    panel.classList.remove('hidden');
+    toggle.classList.add('open');
+    // Scroll the current-question pill into view
+    setTimeout(() => {
+      const cur = $id('qnav-grid').querySelector('.qp-current');
+      if (cur) cur.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }, 60);
+  }
+}
+
+/**
+ * Rebuild the pill grid from the current session state.
+ * Each pill shows ✅/❌ for answered questions, plain number for unanswered,
+ * and highlights the current question.
+ */
+function updateQNavGrid() {
+  if (!S || !S.isStudy) return;
+  $id('qnav-grid').innerHTML = S.qs.map((_, i) => {
+    const result    = S.qResults[i];
+    const isCurrent = i === S.idx;
+    let cls  = 'qnav-pill';
+    let icon = '';
+    let num  = i + 1;
+    if (result !== null) {
+      if (result.correct) { cls += ' qp-correct'; icon = '✅'; }
+      else                { cls += ' qp-wrong';   icon = '❌'; }
+    }
+    if (isCurrent) cls += ' qp-current';
+    const iconHtml = icon ? `<span class="qp-icon">${icon}</span>` : '';
+    return `<button class="${cls}" onclick="jumpTo(${i})" title="Question ${num}">${iconHtml}<span class="qp-num">${num}</span></button>`;
+  }).join('');
+}
+
+/**
+ * Jump directly to question at index `idx`.  Study Mode only.
+ * @param {number} idx  Zero-based question index.
+ */
+function jumpTo(idx) {
+  if (!S || !S.isStudy) return;
+  S.idx = idx;
+  $id('qnav-panel').classList.add('hidden');
+  $id('qnav-toggle').classList.remove('open');
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   § 11  QUIT FLOW
    ───────────────────────────────────────────────────────────── */
 
 /** Return the number of questions the user has actually answered so far. */
@@ -548,7 +635,7 @@ function confirmQuit() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   § 11  NAVIGATION
+   § 12  NAVIGATION
    ───────────────────────────────────────────────────────────── */
 
 /** Advance to the next question, or end the session if this was the last one. */
@@ -569,7 +656,7 @@ function prev() {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   § 12  RESULTS
+   § 13  RESULTS
    ───────────────────────────────────────────────────────────── */
 
 /**
@@ -682,17 +769,20 @@ function showResults(isPartial, reason) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   § 13  RETAKE
+   § 14  RETAKE
    ───────────────────────────────────────────────────────────── */
 
 /** Reset all screens and return to the start screen for a new session. */
 function retake() {
   stopTimer();
+  // Close navigator if open
+  $id('qnav-panel').classList.add('hidden');
+  const t = $id('qnav-toggle');
+  if (t) { t.classList.remove('open'); t.classList.add('hidden'); }
   $id('quiz-screen').classList.add('hidden');
   $id('quiz-screen').classList.remove('is-study');
   $id('results-screen').classList.add('hidden');
   $id('start-screen').classList.remove('hidden');
-  // Restore whichever mode tab was active when the session started
   $id('retake-btn').textContent = S && S.isStudy ? '↩ Start a New Study Session' : '↩ Take a New Exam';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
