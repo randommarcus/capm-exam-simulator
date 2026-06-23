@@ -24,8 +24,10 @@ Self-paced, timer-free browsing of the complete question bank by domain.
 
 - **Domain selector** — study All Domains (524 questions) or focus on a single domain: D1 PM Fundamentals (184Q), D2 Predictive Methodologies (93Q), D3 Agile Frameworks (106Q), or D4 Business Analysis (141Q).
 - **No timer** — work through questions at your own pace without any countdown pressure.
-- **Free backward navigation** — answer a question, read the rationale, then use the ← Previous button to jump back and re-read any earlier question. The answered state (correct/wrong highlighting, feedback banner, rationale) is fully restored when you navigate back, but answers are locked — the score is always based on your first attempt.
-- **Complete coverage** — every question in the selected domain is included in the session, not a random sample. Options are still shuffled to keep things honest.
+- **Permanent navigation buttons** — Previous and Next are always visible, not just after answering. Click Next to skip a question without answering; click it again later to come back. Unanswered questions are simply not counted toward the score.
+- **Free backward navigation** — jump back to any question you've already answered to re-read the rationale. The answered state (correct/wrong highlighting, feedback banner, rationale bullets) is fully restored. Answers are locked on revisit — the score is always based on your first attempt.
+- **Question navigator** — a ☰ toggle button in the quiz header opens a scrollable grid of every question in the session. Each pill shows its number plus an answer marker: ✅ for correct, ❌ for wrong, plain for unanswered. Clicking any pill jumps directly to that question. The navigator is accessible at all times since the header is sticky.
+- **Complete coverage** — every question in the selected domain is included, not a random sample. Options are still shuffled each session.
 - **Full scoring and breakdown** — the same domain-level performance breakdown and study recommendations appear at the end of a study session as in Exam Mode.
 
 ### Shared Features
@@ -96,7 +98,7 @@ python3 -m http.server 8000
 │   └── style.css           # All styles
 ├── js/
 │   ├── questions.js        # Question bank — QB constant with all 524 questions
-│   └── app.js              # All application logic (config, timer, exam mode, study mode, results)
+│   └── app.js              # All application logic (config, timer, exam mode, study mode, navigator, results)
 ├── manifest.json           # Web App Manifest (name, icons, display mode)
 ├── service-worker.js       # Caches the app shell for offline use
 ├── favicon.ico             # Multi-resolution favicon (16/32/48px)

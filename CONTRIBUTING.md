@@ -36,6 +36,7 @@ There's no build step. The codebase is split into three purposeful files — edi
 
 - **Adding or editing questions** → edit `js/questions.js` (and update `STUDY_COUNTS` in `js/app.js` if the totals change)
 - **Changing exam or study mode behaviour** → edit `js/app.js`
+- **Changing the question navigator** → the three relevant functions in `js/app.js` are `toggleQNav()`, `updateQNavGrid()`, and `jumpTo(idx)`, all in § 10 of the file
 - **Changing styles** → edit `css/style.css`
 - **Changing HTML structure** → edit `index.html`
 
