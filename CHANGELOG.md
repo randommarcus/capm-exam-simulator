@@ -2,6 +2,44 @@
 
 All notable changes to this project are documented here.
 
+## [2.1.0] — 2026-06-23
+
+### Added — Study Mode
+
+A second, fully independent learning mode alongside the existing Practice Exam, accessible via a tab switcher on the start screen.
+
+**Domain selector**
+Choose to study All Domains (524 questions) or focus on a single one: Domain 1 PM Fundamentals (184Q), Domain 2 Predictive Methodologies (93Q), Domain 3 Agile Frameworks (106Q), or Domain 4 Business Analysis (141Q). Every question in the chosen scope is included — not a random sample.
+
+**No timer**
+The countdown is hidden entirely in Study Mode. The quiz screen gains an `.is-study` CSS class that suppresses the timer pill, and the timer functions are never started or called.
+
+**Free backward navigation**
+A ← Previous button appears in the feedback area after the first question is answered, allowing navigation back to any already-answered question. Navigating back restores the full answered state — option highlighting, feedback banner, and rationale bullets — exactly as they appeared when the question was first answered. Options remain locked on revisited questions; the score is always based on the first attempt only.
+
+**Per-question result tracking**
+Study sessions extend the session state object with a `qResults` array (one entry per question, initially `null`, set to `{sel, correct}` on first answer). This is what powers the backward-navigation restore without re-scoring.
+
+**Results screen**
+The existing results screen is reused with Study Mode-specific titles ("Study Session Complete 🎓" / "Study Session Ended 📖") and the same domain breakdown and study recommendations as Exam Mode.
+
+**New functions added to `js/app.js`**
+- `switchMode(mode)` — toggles between 'exam' and 'study' on the start screen
+- `selectStudyDomain(domain)` — updates the domain pill selection and question-count stat
+- `genStudySession(domain)` — builds the full question list for the chosen domain scope
+- `createStudySession(questions)` — factory extending `createSession` with `isStudy` flag and `qResults` array
+- `startStudy()` — initialises a study session and enters the quiz screen
+- `prev()` — navigates backward (no-op in Exam Mode)
+- `_enterQuiz()` — shared setup extracted from `startExam` and reused by `startStudy`
+
+**New constant**
+- `STUDY_COUNTS` — maps each domain key to its question count, used to update the start screen stat on domain selection
+
+**Files changed**
+- `index.html` — mode-tab switcher, study domain selector, `← Previous` button in feedback area, updated quit modal text (adapts to "Quit this exam?" vs "End this study session?")
+- `js/app.js` — all new Study Mode functions, updated `render()`, `pick_ans()`, `next()`, `showResults()`, `retake()`
+- `css/style.css` — mode tabs, study domain selector pills, `.prev-btn`, `.quiz-nav` flex layout, `.is-study #timer-disp` rule that hides the timer
+
 ## [2.0.0] — 2026-06-22
 
 ### Changed — Codebase Refactor

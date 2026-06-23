@@ -1,6 +1,6 @@
 # CAPM® Practice Exam Simulator
 
-A free, offline-capable, installable practice exam simulator for the PMI **Certified Associate in Project Management (CAPM)®** certification. PocketPrep-style interface, 524 original practice questions weighted to the official Exam Content Outline (ECO), instant feedback with bulleted rationales, domain-level performance breakdowns, and a configurable timed exam mode.
+A free, offline-capable, installable practice exam simulator for the PMI **Certified Associate in Project Management (CAPM)®** certification. 524 original practice questions across all four ECO domains, two modes (timed Practice Exam and self-paced Study Mode with domain-wise browsing), instant feedback with bulleted rationales, and domain-level performance breakdowns.
 
 No build step, no backend, no external dependencies. Open `index.html` in a browser and it works — or host the folder anywhere with HTTPS to get the installable PWA experience.
 
@@ -8,17 +8,31 @@ No build step, no backend, no external dependencies. Open `index.html` in a brow
 
 ## Features
 
+### 📝 Practice Exam Mode
+Timed, exam-style sessions drawn from the full question bank in ECO-weighted proportions.
+
 - **524-question bank** split across all four CAPM ECO domains, weighted to match PMI's official percentages (Domain 1: 36%, Domain 2: 17%, Domain 3: 20%, Domain 4: 27%).
-- **Five exam lengths** — 30, 60, 90, or 120 questions, or the full 150-question exam — each drawing from the bank in the correct domain proportions.
-- **Adaptive countdown timer**, scaled off PMI's real 3-hour allowance for the 150-question exam (1.2 minutes/question), so a 30-question exam gets 36 minutes, a 90-question exam gets 1h 48m, and so on. Turns red and pulses in the final 5 minutes; auto-submits for scoring if time runs out.
-- **Timer pauses on answer** — the countdown freezes the moment you select an option so you can read the rationale at leisure; it resumes automatically when you click Next Question.
-- **Shuffled answer options** — the A/B/C/D order of every question's options is randomised each session, preventing the "longest option is usually correct" pattern-recognition shortcut.
-- **Domain label toggle** — a toggle in the quiz header lets you show or hide the domain badge above each question, so you can choose how closely to simulate the real exam environment.
-- **Quit anytime** — end a session early and still get a fully scored results screen based on whatever you've answered so far.
-- **Instant per-question feedback** with an expert rationale broken into readable bullet points (not a wall of text).
-- **Domain-level results breakdown** with performance status (Above/On/Below Target) and targeted study recommendations for weak areas.
+- **Five exam lengths** — 30, 60, 90, 120, or 150 questions — each drawing from the bank in the correct domain proportions.
+- **Adaptive countdown timer**, scaled off PMI's real 3-hour allowance for the 150-question exam (1.2 min/question). Turns red and pulses in the final 5 minutes; auto-submits for scoring if time runs out.
+- **Timer pauses on answer** — the countdown freezes the moment you select an option so you can read the rationale without pressure; resumes when you click Next Question.
+- **Shuffled answer options** — A/B/C/D order is randomised every session, preventing the "longest option is usually correct" pattern-recognition shortcut.
+- **Domain label toggle** — show or hide the domain badge above each question to choose how closely to simulate the real exam environment.
+- **Quit anytime** — end early and still receive a scored results screen based on what you've answered.
+
+### 📚 Study Mode
+Self-paced, timer-free browsing of the complete question bank by domain.
+
+- **Domain selector** — study All Domains (524 questions) or focus on a single domain: D1 PM Fundamentals (184Q), D2 Predictive Methodologies (93Q), D3 Agile Frameworks (106Q), or D4 Business Analysis (141Q).
+- **No timer** — work through questions at your own pace without any countdown pressure.
+- **Free backward navigation** — answer a question, read the rationale, then use the ← Previous button to jump back and re-read any earlier question. The answered state (correct/wrong highlighting, feedback banner, rationale) is fully restored when you navigate back, but answers are locked — the score is always based on your first attempt.
+- **Complete coverage** — every question in the selected domain is included in the session, not a random sample. Options are still shuffled to keep things honest.
+- **Full scoring and breakdown** — the same domain-level performance breakdown and study recommendations appear at the end of a study session as in Exam Mode.
+
+### Shared Features
+- **Instant per-question feedback** with the rationale broken into readable bullet points.
+- **Domain-level results breakdown** with Above / On / Below Target status and targeted study recommendations for weak areas.
 - **Installable as a real app** on Android, iOS, Windows, macOS, and Linux via the Web App Manifest + Service Worker (see below).
-- **Works fully offline** once loaded — the service worker caches the entire app, including all 524 questions, so no internet connection is needed after the first visit.
+- **Works fully offline** once loaded — the service worker caches all 524 questions and the complete app shell.
 
 ## Install as an App
 
@@ -82,7 +96,7 @@ python3 -m http.server 8000
 │   └── style.css           # All styles
 ├── js/
 │   ├── questions.js        # Question bank — QB constant with all 524 questions
-│   └── app.js              # All application logic (config, timer, quiz, results)
+│   └── app.js              # All application logic (config, timer, exam mode, study mode, results)
 ├── manifest.json           # Web App Manifest (name, icons, display mode)
 ├── service-worker.js       # Caches the app shell for offline use
 ├── favicon.ico             # Multi-resolution favicon (16/32/48px)
@@ -118,7 +132,7 @@ Plain HTML, CSS, and vanilla JavaScript — no frameworks, no bundler, no `npm i
 
 In the interest of being upfront about it: this app was built almost entirely by **Claude** (Anthropic's AI assistant), working interactively with the repo owner over a series of conversations.
 
-Claude wrote all of the HTML/CSS/JavaScript, authored the full 524-question bank with explanations (rationales) for each answer, designed and generated the app icon set, and implemented every feature in this README — the exam-length/timer system, timer-pause-on-answer, answer-option shuffling, domain label toggle, quit-and-partial-scoring logic, the bulleted rationale formatting, the PWA conversion (manifest, service worker, icons), and the codebase refactor that split the monolithic `index.html` into separate `css/`, `js/`, and `index.html` files. Topic-coverage audits and duplicate-detection passes across the full question bank were also Claude's work.
+Claude wrote all of the HTML/CSS/JavaScript, authored the full 524-question bank with explanations (rationales) for each answer, designed and generated the app icon set, and implemented every feature in this README — the exam-length/timer system, Study Mode with domain-wise browsing and free backward navigation, timer-pause-on-answer, answer-option shuffling, domain label toggle, quit-and-partial-scoring logic, the bulleted rationale formatting, the PWA conversion (manifest, service worker, icons), and the codebase refactor that split the monolithic `index.html` into separate `css/`, `js/`, and `index.html` files. Topic-coverage audits and duplicate-detection passes across the full question bank were also Claude's work.
 
 The repo owner directed the entire process: defining what the app should do, specifying the exam logic (domain weighting, timer duration based on the real PMI exam allowance), testing the live app, and catching real UI bugs along the way — including screenshots of a misaligned answer-feedback panel and a study-recommendations section where the layout broke, both of which led directly to the CSS fixes now in this codebase. The decision to build this at all, and every product decision in it, came from the repo owner; Claude was the one typing the code.
 
