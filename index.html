@@ -121,12 +121,28 @@
     <div class="q-header-in">
       <div class="q-logo">CAPM<em>® Simulator</em></div>
       <div class="q-center"><div class="q-num" id="q-num">Question 1 of 30</div></div>
+      <button class="qnav-toggle hidden" id="qnav-toggle" onclick="toggleQNav()" title="Jump to any question">☰ <span id="qnav-label">1/524</span></button>
       <div class="q-timer" id="timer-disp">⏱ 36:00</div>
       <div class="q-score">⭐ <span id="score-disp">0 / 0</span></div>
       <button class="domain-toggle active" id="domain-toggle-btn" onclick="toggleDomain()" aria-label="Toggle domain label" title="Show/hide domain">🏷 <span>Domain</span></button>
       <button class="quit-btn" onclick="askQuit()" aria-label="Quit">✕ <span id="quit-label">Quit</span></button>
     </div>
   </header>
+
+  <!-- Question navigator panel (Study Mode only) -->
+  <div class="qnav-panel hidden" id="qnav-panel">
+    <div class="qnav-hdr">
+      <span class="qnav-title">Jump to Question</span>
+      <div class="qnav-legend">
+        <span>✅ Correct</span>
+        <span>❌ Wrong</span>
+        <span class="qnav-leg-cur">■ Current</span>
+      </div>
+      <button class="qnav-close" onclick="toggleQNav()" aria-label="Close navigator">✕</button>
+    </div>
+    <div class="qnav-grid" id="qnav-grid"></div>
+  </div>
+
   <div class="prog-wrap"><div class="prog-bar" id="prog-bar"></div></div>
   <div class="q-body">
     <div id="d-badge" class="d-badge db-d1">Domain 1 · PM Fundamentals</div>
@@ -137,10 +153,11 @@
     <div id="feedback-wrap" class="hidden">
       <div id="fb-banner" class="fb-banner fb-correct"></div>
       <div class="rat-card"><div class="rat-label"><span class="rat-label-icon">📘</span><span>Expert Rationale</span></div><div class="rat-text" id="rat-text"></div></div>
-      <div class="quiz-nav">
-        <button class="prev-btn hidden" id="prev-btn" onclick="prev()">← Previous</button>
-        <button class="next-btn" id="next-btn" onclick="next()">Next Question →</button>
-      </div>
+    </div>
+    <!-- Navigation always rendered; visibility controlled by JS -->
+    <div class="quiz-nav hidden" id="quiz-nav">
+      <button class="prev-btn" id="prev-btn" onclick="prev()">← Previous</button>
+      <button class="next-btn" id="next-btn" onclick="next()">Next Question →</button>
     </div>
   </div>
 </div>
