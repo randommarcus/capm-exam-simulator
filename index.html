@@ -40,31 +40,78 @@
     <div class="s-eyebrow">Independent CAPM® Study Tool</div>
     <h1 class="s-title">CAPM® Practice Exam Simulator</h1>
     <p class="s-sub">Aligned to the latest Exam Content Outline · PMBOK® Guide 7th Edition · Agile Practice Guide</p>
-    <div class="s-domains">
-      <div class="s-d d1"><div class="dn">Domain 1</div><div class="dpct">36%</div><div class="dlabel">PM Fundamentals &amp; Core Concepts</div></div>
-      <div class="s-d d2"><div class="dn">Domain 2</div><div class="dpct">17%</div><div class="dlabel">Predictive, Plan-Based Methodologies</div></div>
-      <div class="s-d d3"><div class="dn">Domain 3</div><div class="dpct">20%</div><div class="dlabel">Agile Frameworks/Methodologies</div></div>
-      <div class="s-d d4"><div class="dn">Domain 4</div><div class="dpct">27%</div><div class="dlabel">Business Analysis Frameworks</div></div>
+
+    <!-- Mode tabs -->
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="tab-exam"  onclick="switchMode('exam')">📝 Practice Exam</button>
+      <button class="mode-tab"        id="tab-study" onclick="switchMode('study')">📚 Study Mode</button>
     </div>
-    <div class="s-examlen">
-      <div class="s-examlen-label">Choose Exam Length</div>
-      <div class="s-examlen-opts" id="examlen-opts">
-        <button class="el-btn active" data-len="30" onclick="selectLen(30)"><span class="eln">30</span><span class="elt">36 min</span></button>
-        <button class="el-btn" data-len="60" onclick="selectLen(60)"><span class="eln">60</span><span class="elt">1h 12m</span></button>
-        <button class="el-btn" data-len="90" onclick="selectLen(90)"><span class="eln">90</span><span class="elt">1h 48m</span></button>
-        <button class="el-btn" data-len="120" onclick="selectLen(120)"><span class="eln">120</span><span class="elt">2h 24m</span></button>
-        <button class="el-btn" data-len="150" onclick="selectLen(150)"><span class="eln">150</span><span class="elt">3 hr</span></button>
+
+    <!-- ── EXAM MODE CONFIG ── -->
+    <div id="exam-config">
+      <div class="s-domains">
+        <div class="s-d d1"><div class="dn">Domain 1</div><div class="dpct">36%</div><div class="dlabel">PM Fundamentals &amp; Core Concepts</div></div>
+        <div class="s-d d2"><div class="dn">Domain 2</div><div class="dpct">17%</div><div class="dlabel">Predictive, Plan-Based Methodologies</div></div>
+        <div class="s-d d3"><div class="dn">Domain 3</div><div class="dpct">20%</div><div class="dlabel">Agile Frameworks/Methodologies</div></div>
+        <div class="s-d d4"><div class="dn">Domain 4</div><div class="dpct">27%</div><div class="dlabel">Business Analysis Frameworks</div></div>
       </div>
+      <div class="s-examlen">
+        <div class="s-examlen-label">Choose Exam Length</div>
+        <div class="s-examlen-opts" id="examlen-opts">
+          <button class="el-btn active" data-len="30"  onclick="selectLen(30)"><span class="eln">30</span><span class="elt">36 min</span></button>
+          <button class="el-btn"        data-len="60"  onclick="selectLen(60)"><span class="eln">60</span><span class="elt">1h 12m</span></button>
+          <button class="el-btn"        data-len="90"  onclick="selectLen(90)"><span class="eln">90</span><span class="elt">1h 48m</span></button>
+          <button class="el-btn"        data-len="120" onclick="selectLen(120)"><span class="eln">120</span><span class="elt">2h 24m</span></button>
+          <button class="el-btn"        data-len="150" onclick="selectLen(150)"><span class="eln">150</span><span class="elt">3 hr</span></button>
+        </div>
+      </div>
+      <div class="s-stats">
+        <div class="s-stat"><span class="sn" id="stat-q-count">30</span><span class="sl">Questions</span></div>
+        <div class="s-stat"><span class="sn" id="stat-time">36 min</span><span class="sl">Time Limit</span></div>
+        <div class="s-stat"><span class="sn">524+</span><span class="sl">Question Bank</span></div>
+      </div>
+      <button class="s-btn" onclick="startExam()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Start Practice Exam
+      </button>
     </div>
-    <div class="s-stats">
-      <div class="s-stat"><span class="sn" id="stat-q-count">30</span><span class="sl">Questions</span></div>
-      <div class="s-stat"><span class="sn" id="stat-time">36 min</span><span class="sl">Time Limit</span></div>
-      <div class="s-stat"><span class="sn">524+</span><span class="sl">Question Bank</span></div>
+
+    <!-- ── STUDY MODE CONFIG ── -->
+    <div id="study-config" class="hidden">
+      <div class="sd-label">Choose Domain</div>
+      <div class="sd-opts">
+        <button class="sd-btn active" data-domain="all" onclick="selectStudyDomain('all')">
+          <span class="sd-info"><span class="sd-name">All Domains</span><span class="sd-desc">Complete question bank</span></span>
+          <span class="sd-count">524 Q</span>
+        </button>
+        <button class="sd-btn" data-domain="d1" onclick="selectStudyDomain('d1')">
+          <span class="sd-info"><span class="sd-name">Domain 1</span><span class="sd-desc">PM Fundamentals &amp; Core Concepts</span></span>
+          <span class="sd-count">184 Q</span>
+        </button>
+        <button class="sd-btn" data-domain="d2" onclick="selectStudyDomain('d2')">
+          <span class="sd-info"><span class="sd-name">Domain 2</span><span class="sd-desc">Predictive, Plan-Based Methodologies</span></span>
+          <span class="sd-count">93 Q</span>
+        </button>
+        <button class="sd-btn" data-domain="d3" onclick="selectStudyDomain('d3')">
+          <span class="sd-info"><span class="sd-name">Domain 3</span><span class="sd-desc">Agile Frameworks/Methodologies</span></span>
+          <span class="sd-count">106 Q</span>
+        </button>
+        <button class="sd-btn" data-domain="d4" onclick="selectStudyDomain('d4')">
+          <span class="sd-info"><span class="sd-name">Domain 4</span><span class="sd-desc">Business Analysis Frameworks</span></span>
+          <span class="sd-count">141 Q</span>
+        </button>
+      </div>
+      <div class="s-stats">
+        <div class="s-stat"><span class="sn" id="stat-study-count">524</span><span class="sl">Questions</span></div>
+        <div class="s-stat"><span class="sn">No Timer</span><span class="sl">Self-Paced</span></div>
+        <div class="s-stat"><span class="sn">Free Nav</span><span class="sl">Go Back &amp; Review</span></div>
+      </div>
+      <button class="s-btn s-btn-study" onclick="startStudy()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Start Study Session
+      </button>
     </div>
-    <button class="s-btn" onclick="startExam()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      Start Practice Exam
-    </button>
+
   </div>
 </div>
 
@@ -77,7 +124,7 @@
       <div class="q-timer" id="timer-disp">⏱ 36:00</div>
       <div class="q-score">⭐ <span id="score-disp">0 / 0</span></div>
       <button class="domain-toggle active" id="domain-toggle-btn" onclick="toggleDomain()" aria-label="Toggle domain label" title="Show/hide domain">🏷 <span>Domain</span></button>
-      <button class="quit-btn" onclick="askQuit()" aria-label="Quit exam">✕ <span>Quit</span></button>
+      <button class="quit-btn" onclick="askQuit()" aria-label="Quit">✕ <span id="quit-label">Quit</span></button>
     </div>
   </header>
   <div class="prog-wrap"><div class="prog-bar" id="prog-bar"></div></div>
@@ -90,7 +137,10 @@
     <div id="feedback-wrap" class="hidden">
       <div id="fb-banner" class="fb-banner fb-correct"></div>
       <div class="rat-card"><div class="rat-label"><span class="rat-label-icon">📘</span><span>Expert Rationale</span></div><div class="rat-text" id="rat-text"></div></div>
-      <button class="next-btn" id="next-btn" onclick="next()">Next Question →</button>
+      <div class="quiz-nav">
+        <button class="prev-btn hidden" id="prev-btn" onclick="prev()">← Previous</button>
+        <button class="next-btn" id="next-btn" onclick="next()">Next Question →</button>
+      </div>
     </div>
   </div>
 </div>
@@ -99,7 +149,7 @@
 <div id="quit-modal" class="modal-overlay hidden">
   <div class="modal-card">
     <div class="modal-icon">⚠️</div>
-    <div class="modal-title">Quit this exam?</div>
+    <div class="modal-title" id="quit-modal-title">Quit this exam?</div>
     <div class="modal-text">You've answered <strong id="quit-progress">0 of 30</strong> questions so far. If you quit now, your results will be scored based only on the questions you've completed.</div>
     <div class="modal-actions">
       <button class="modal-btn modal-btn-secondary" onclick="cancelQuit()">Keep Going</button>
@@ -136,7 +186,7 @@
       <div class="res-card-title">📚 Study Recommendations</div>
       <div class="reco-box"><div class="reco-title">Focus Areas</div><ul class="reco-list" id="reco-list"></ul></div>
     </div>
-    <button class="retake-btn" onclick="retake()">↩ Take a New Exam</button>
+    <button class="retake-btn" onclick="retake()" id="retake-btn">↩ Take a New Exam</button>
   </div>
 </div>
 <!-- ── PWA: register service worker (enables install + offline use) ── -->
