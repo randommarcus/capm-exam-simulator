@@ -575,7 +575,7 @@ function toggleQNav() {
 
 /**
  * Rebuild the pill grid from the current session state.
- * Each pill shows ✅/❌ for answered questions, plain number for unanswered,
+ * Each pill shows a styled ✓ or ✗ character for answered questions, plain number for unanswered,
  * and highlights the current question.
  */
 function updateQNavGrid() {
@@ -585,14 +585,12 @@ function updateQNavGrid() {
     const isCurrent = i === S.idx;
     let cls  = 'qnav-pill';
     let icon = '';
-    let num  = i + 1;
     if (result !== null) {
-      if (result.correct) { cls += ' qp-correct'; icon = '✅'; }
-      else                { cls += ' qp-wrong';   icon = '❌'; }
+      if (result.correct) { cls += ' qp-correct'; icon = '<span class="qp-icon">✓</span>'; }
+      else                { cls += ' qp-wrong';   icon = '<span class="qp-icon">✗</span>'; }
     }
     if (isCurrent) cls += ' qp-current';
-    const iconHtml = icon ? `<span class="qp-icon">${icon}</span>` : '';
-    return `<button class="${cls}" onclick="jumpTo(${i})" title="Question ${num}">${iconHtml}<span class="qp-num">${num}</span></button>`;
+    return `<button class="${cls}" onclick="jumpTo(${i})" title="Question ${i + 1}">${icon}<span class="qp-num">${i + 1}</span></button>`;
   }).join('');
 }
 
