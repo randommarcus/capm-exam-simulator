@@ -3,9 +3,11 @@
    ───────────────────────────────────────────────────────────────
    Depends on:  js/questions.js  (QB constant)
    Entry points called from HTML onclick attributes:
-     selectLen(n)   startExam()     pick_ans(i)
-     next()         askQuit()       cancelQuit()
-     confirmQuit()  retake()        toggleDomain()
+     Exam Mode:   selectLen(n)  startExam()   pick_ans(i)
+                  next()        prev()        askQuit()
+                  cancelQuit()  confirmQuit() retake()
+                  toggleDomain()
+     Study Mode:  switchMode(m) selectStudyDomain(d) startStudy()
 ═══════════════════════════════════════════════════════════════ */
 
 'use strict';
@@ -74,14 +76,25 @@ let selectedLen = 30;
 /** Whether the domain badge is visible above each question. */
 let showDomain = true;
 
+/** 'exam' or 'study' — which mode the start screen is showing. */
+let activeMode = 'exam';
+
+/** Domain selected in Study Mode ('all' | 'd1' | 'd2' | 'd3' | 'd4'). */
+let selectedStudyDomain = 'all';
+
+/** Total questions in each study domain selection. */
+const STUDY_COUNTS = { all: 524, d1: 184, d2: 93, d3: 106, d4: 141 };
+
 /**
- * Active exam session object.  Null when no exam is in progress.
+ * Active session object.  Null when no session is in progress.
  * @type {{ qs: object[], idx: number, score: number, answered: boolean,
- *           ds: { [dk: string]: { c: number, t: number } } } | null}
+ *           ds: { [dk: string]: { c: number, t: number } },
+ *           isStudy?: boolean,
+ *           qResults?: Array<{sel:number,correct:boolean}|null> } | null}
  */
 let S = null;
 
-/** Build a fresh session state around a shuffled question array. */
+/** Build a fresh exam-mode session state. */
 function createSession(questions) {
   return {
     qs:       questions,
@@ -89,6 +102,15 @@ function createSession(questions) {
     score:    0,
     answered: false,
     ds:       Object.fromEntries(DOMAIN_KEYS.map(dk => [dk, { c: 0, t: 0 }])),
+  };
+}
+
+/** Build a fresh study-mode session state (adds per-question result tracking). */
+function createStudySession(questions) {
+  return {
+    ...createSession(questions),
+    isStudy:  true,
+    qResults: new Array(questions.length).fill(null),
   };
 }
 
@@ -235,6 +257,24 @@ function selectLen(n) {
   $id('stat-time').textContent    = fmtDuration(EXAM_LENGTHS[n].minutes);
 }
 
+/** Toggle between Practice Exam and Study Mode on the start screen. */
+function switchMode(mode) {
+  activeMode = mode;
+  $id('tab-exam').classList.toggle('active',   mode === 'exam');
+  $id('tab-study').classList.toggle('active',  mode === 'study');
+  $id('exam-config').classList.toggle('hidden', mode !== 'exam');
+  $id('study-config').classList.toggle('hidden', mode !== 'study');
+}
+
+/** Update the selected study domain pill and question count stat. */
+function selectStudyDomain(domain) {
+  selectedStudyDomain = domain;
+  document.querySelectorAll('.sd-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.domain === domain)
+  );
+  $id('stat-study-count').textContent = STUDY_COUNTS[domain];
+}
+
 /* ─────────────────────────────────────────────────────────────
    § 6  SESSION GENERATION
    ───────────────────────────────────────────────────────────── */
@@ -264,25 +304,57 @@ function genSession(len) {
   return shuffle(all);
 }
 
+/**
+ * Build a Study Mode question list — every question in the chosen domain
+ * (or all four domains), with options shuffled, in a randomised order.
+ *
+ * @param {'all'|'d1'|'d2'|'d3'|'d4'} domain
+ * @returns {object[]}
+ */
+function genStudySession(domain) {
+  const keys = domain === 'all' ? DOMAIN_KEYS : [domain];
+  const all  = [];
+  keys.forEach(dk => {
+    QB[dk].forEach(q => {
+      const shuffledOpts = shuffle([...q.opts]);
+      const correctText  = q.opts[q.ans];
+      all.push({ ...q, opts: shuffledOpts, ans: shuffledOpts.indexOf(correctText), domain: dk });
+    });
+  });
+  return shuffle(all);
+}
+
 /* ─────────────────────────────────────────────────────────────
    § 7  EXAM LIFECYCLE
    ───────────────────────────────────────────────────────────── */
 
-/** Initialise a new session and transition from the start screen to the quiz screen. */
-function startExam() {
-  S = createSession(genSession(selectedLen));
-
-  // Reset domain-toggle to visible at the start of every exam
+/** Shared setup for transitioning start screen → quiz screen. */
+function _enterQuiz() {
   showDomain = true;
   const domainBtn = $id('domain-toggle-btn');
-  if (domainBtn) {
-    domainBtn.classList.add('active');
-    domainBtn.title = 'Hide domain label';
-  }
-
+  if (domainBtn) { domainBtn.classList.add('active'); domainBtn.title = 'Hide domain label'; }
   $id('start-screen').classList.add('hidden');
   $id('quiz-screen').classList.remove('hidden');
+}
+
+/** Initialise a new Exam Mode session and enter the quiz screen. */
+function startExam() {
+  S = createSession(genSession(selectedLen));
+  _enterQuiz();
+  $id('quiz-screen').classList.remove('is-study');
+  $id('quit-label').textContent   = 'Quit';
+  $id('quit-modal-title').textContent = 'Quit this exam?';
   startTimer(EXAM_LENGTHS[selectedLen].minutes);
+  render();
+}
+
+/** Initialise a new Study Mode session and enter the quiz screen. */
+function startStudy() {
+  S = createStudySession(genStudySession(selectedStudyDomain));
+  _enterQuiz();
+  $id('quiz-screen').classList.add('is-study');     // hides timer via CSS
+  $id('quit-label').textContent       = 'End';
+  $id('quit-modal-title').textContent = 'End this study session?';
   render();
 }
 
@@ -307,7 +379,7 @@ function render() {
 
   // ── Header ──────────────────────────────────────────────────
   $id('q-num').textContent      = `Question ${num} of ${tot}`;
-  $id('score-disp').textContent = `${S.score} / ${S.idx}`;
+  $id('score-disp').textContent = `${S.score} / ${answeredCount()}`;
   $id('prog-bar').style.width   = `${((num - 1) / tot) * 100}%`;
 
   // ── Domain badge ─────────────────────────────────────────────
@@ -331,6 +403,45 @@ function render() {
   $id('feedback-wrap').classList.add('hidden');
   S.answered = false;
 
+  // ── Study mode: prev button visibility ───────────────────────
+  const prevBtn = $id('prev-btn');
+  if (S.isStudy) {
+    prevBtn.classList.toggle('hidden', S.idx === 0);
+  } else {
+    prevBtn.classList.add('hidden');
+  }
+
+  // ── Study mode: restore already-answered question state ───────
+  if (S.isStudy && S.qResults[S.idx] !== null) {
+    const { sel, correct } = S.qResults[S.idx];
+    S.answered = true;
+    // Highlight options
+    for (let i = 0; i < 4; i++) {
+      const btn = $id(`ob${i}`);
+      btn.disabled = true;
+      if (i === q.ans)              { btn.classList.add('opt-correct'); $id(`oi${i}`).textContent = '✓'; }
+      else if (i === sel && !correct){ btn.classList.add('opt-wrong');   $id(`oi${i}`).textContent = '✗'; }
+    }
+    // Feedback banner
+    const banner = $id('fb-banner');
+    if (correct) {
+      banner.className = 'fb-banner fb-correct';
+      banner.innerHTML = '<span class="fb-banner-icon">✅</span><span class="fb-banner-text">Correct! Great work.</span>';
+    } else {
+      banner.className = 'fb-banner fb-wrong';
+      banner.innerHTML = '<span class="fb-banner-icon">❌</span>'
+                       + `<span class="fb-banner-text">Incorrect — the correct answer is <strong>${LETTERS[q.ans]}</strong>.</span>`;
+    }
+    // Rationale
+    $id('rat-text').innerHTML = '<ul class="rat-list">'
+      + splitRationale(q.rat).map(s => `<li>${escapeHtml(s)}</li>`).join('')
+      + '</ul>';
+    // Show feedback and set next button label
+    $id('feedback-wrap').classList.remove('hidden');
+    $id('next-btn').textContent = S.idx === S.qs.length - 1 ? 'View My Results 🎯' : 'Next Question →';
+    return; // skip entrance animation on back-navigation restores
+  }
+
   // ── Entrance animation ────────────────────────────────────────
   const card = $id('q-card');
   card.classList.remove('q-enter');
@@ -353,7 +464,7 @@ function pick_ans(sel) {
   S.answered = true;
 
   // Pause timer so the user can read the rationale without time pressure
-  pauseTimer();
+  if (!S.isStudy) pauseTimer();
 
   const q       = S.qs[S.idx];
   const correct = sel === q.ans;
@@ -361,7 +472,10 @@ function pick_ans(sel) {
   // ── Score tracking ─────────────────────────────────────────────
   S.ds[q.domain].t++;
   if (correct) { S.score++; S.ds[q.domain].c++; }
-  $id('score-disp').textContent = `${S.score} / ${S.idx + 1}`;
+  $id('score-disp').textContent = `${S.score} / ${answeredCount()}`;
+
+  // ── Store result for study mode navigation ─────────────────────
+  if (S.isStudy) S.qResults[S.idx] = { sel, correct };
 
   // ── Option highlighting ────────────────────────────────────────
   for (let i = 0; i < 4; i++) {
@@ -401,6 +515,9 @@ function pick_ans(sel) {
     ? 'View My Results 🎯'
     : 'Next Question →';
 
+  // Show prev button in study mode once the first answer is in
+  if (S.isStudy && S.idx > 0) $id('prev-btn').classList.remove('hidden');
+
   // Scroll feedback into view on mobile (small delay lets layout settle first)
   setTimeout(() => feedbackWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
 }
@@ -434,11 +551,19 @@ function confirmQuit() {
    § 11  NAVIGATION
    ───────────────────────────────────────────────────────────── */
 
-/** Advance to the next question, or end the exam if this was the last one. */
+/** Advance to the next question, or end the session if this was the last one. */
 function next() {
   if (S.idx === S.qs.length - 1) { stopTimer(); showResults(false); return; }
   S.idx++;
-  resumeTimer();
+  if (!S.isStudy) resumeTimer();
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/** Go back to the previous question (Study Mode only). */
+function prev() {
+  if (!S.isStudy || S.idx === 0) return;
+  S.idx--;
   render();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -476,7 +601,17 @@ function showResults(isPartial, reason) {
 
   // ── Header text ────────────────────────────────────────────────
   $id('partial-notice').classList.toggle('hidden', !wasEndedEarly);
-  if (isTimeUp) {
+  if (S.isStudy) {
+    // Study Mode uses different titles regardless of partial/complete
+    if (wasEndedEarly) {
+      $id('res-title').textContent      = 'Study Session Ended 📖';
+      $id('res-sub').textContent        = `You covered ${answered} of ${S.qs.length} questions — here's how you did on those`;
+      $id('partial-notice').textContent = 'Session ended early — scoring reflects only the questions you answered.';
+    } else {
+      $id('res-title').textContent = 'Study Session Complete 🎓';
+      $id('res-sub').textContent   = `You worked through all ${answered} questions — here's your full breakdown`;
+    }
+  } else if (isTimeUp) {
     $id('res-title').textContent       = "Time's Up ⏰";
     $id('res-sub').textContent         = `Your time limit expired — here's your performance on the ${answered} of ${S.qs.length} questions you completed`;
     $id('partial-notice').textContent  = 'Time expired before you finished — scoring reflects only the questions you answered.';
@@ -550,11 +685,14 @@ function showResults(isPartial, reason) {
    § 13  RETAKE
    ───────────────────────────────────────────────────────────── */
 
-/** Reset all screens and return to the start screen for a new exam. */
+/** Reset all screens and return to the start screen for a new session. */
 function retake() {
   stopTimer();
   $id('quiz-screen').classList.add('hidden');
+  $id('quiz-screen').classList.remove('is-study');
   $id('results-screen').classList.add('hidden');
   $id('start-screen').classList.remove('hidden');
+  // Restore whichever mode tab was active when the session started
+  $id('retake-btn').textContent = S && S.isStudy ? '↩ Start a New Study Session' : '↩ Take a New Exam';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
