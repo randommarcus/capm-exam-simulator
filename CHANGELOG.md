@@ -13,11 +13,13 @@ The `quiz-nav` div was moved out of `feedback-wrap` (which was hidden until answ
 Clicking Next in Study Mode no longer requires the current question to be answered first. Skipped questions remain `null` in `qResults` and are not counted in the score. They can be answered later by navigating back via Previous or the new question navigator.
 
 **Question navigator panel**
-A `☰ N/Total` toggle button in the quiz header (Study Mode only) opens a scrollable grid of every question in the session. Each question is represented by a pill showing:
+A `☰ N/Total` toggle button in the quiz header (Study Mode only) opens a scrollable grid of every question in the session. Each pill shows a status indicator and its number:
 - Plain number — not yet answered
-- ✅ + number — answered correctly (green border + tinted background)
-- ❌ + number — answered wrongly (red border + tinted background)
-- Current question pill is filled (purple, or green/red if already answered)
+- **✓** + number — answered correctly (green character + green-tinted background + green border)
+- **✗** + number — answered wrongly (red character + red-tinted background + red border)
+- Current question pill is filled (primary purple, or green/red if also answered; indicator turns white)
+
+The ✓ and ✗ are standard unicode text characters (U+2713 CHECK MARK and U+2717 BALLOT X) styled via CSS — not emoji. This ensures consistent rendering across all platforms and operating systems at small pill sizes, avoiding the font-lookup and scaling issues that emoji cause in compact UI elements.
 
 Clicking any pill jumps directly to that question and closes the panel. The panel refreshes in real time when an answer is submitted while it is open, so answer marks appear immediately. The quiz header is sticky, so the navigator toggle is always reachable regardless of scroll position.
 
@@ -29,7 +31,7 @@ Clicking any pill jumps directly to that question and closes the panel. The pane
 **Files changed**
 - `index.html` — `qnav-toggle` button and `qnav-panel` grid added to header; `quiz-nav` moved outside `feedback-wrap` (now a sibling, not a child)
 - `js/app.js` — three new navigator functions; `startExam()` and `startStudy()` manage quiz-nav visibility; `render()` updates the navigator label and closes the panel on navigation; `pick_ans()` refreshes the grid if the panel is open; `retake()` cleans up navigator state
-- `css/style.css` — `.qnav-toggle`, `.qnav-panel`, `.qnav-grid`, `.qnav-pill`, `.qp-correct`, `.qp-wrong`, `.qp-current` styles; `.qnav-toggle` added to mobile responsive rules
+- `css/style.css` — `.qnav-toggle`, `.qnav-panel`, `.qnav-grid`, `.qnav-pill`, `.qp-correct`, `.qp-wrong`, `.qp-current`, `.qp-icon` (with per-state colour rules), `.qnav-leg-correct`, `.qnav-leg-wrong` styles; `.qnav-toggle` added to mobile responsive rules
 
 ## [2.1.0] — 2026-06-23
 
